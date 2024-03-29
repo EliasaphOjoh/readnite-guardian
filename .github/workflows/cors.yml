@@ -1,0 +1,32 @@
+name: Add CORS Headers
+
+on:
+  push:
+    branches:
+      - main  # Adjust branch name if necessary
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Add CORS headers
+      run: |
+        echo "/*" > _headers
+        echo "  Access-Control-Allow-Origin: *" >> _headers
+        echo "  Access-Control-Allow-Methods: GET, HEAD, POST, OPTIONS" >> _headers
+        echo "  Access-Control-Allow-Headers: *" >> _headers
+        echo "  Access-Control-Max-Age: 600" >> _headers
+        mv _headers docs/
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Adjust branch name if necessary
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/_headers
+        git commit -m "Add CORS headers"
+        git push
